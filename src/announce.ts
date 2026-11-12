@@ -1,4 +1,4 @@
-import { Client, EmbedBuilder, GuildMember, User } from "discord.js";
+import { Client, EmbedBuilder, GuildMember, MessageFlags, User } from "discord.js";
 import { robloxProfileUrl, strafesUserUrl } from "./api.js";
 import { config } from "./config.js";
 
@@ -41,7 +41,9 @@ export async function postWelcome(member: GuildMember, roblox: { robloxId: numbe
         .setThumbnail(headshotUrl ?? member.displayAvatarURL())
         .setColor(COLOR);
     try {
-        await channel.send({ embeds: [embed] });
+        // Mentions in embeds don't come with the user's data, so a client that hasn't loaded the member yet (likely, since
+        // they're usually new) shows the embed's mention as unknown. A mention that pings, in the content, does come with it.
+        await channel.send({ content: `${member}`, embeds: [embed], allowedMentions: { users: [member.id] } });
     }
     catch (err) {
         console.error(`Couldn't post the welcome for ${member.id}:`, err);
@@ -107,8 +109,14 @@ export async function postVerificationLog(client: Client, verification: Verifica
     }
 
     try {
-        // Mentions in embeds don't ping anyone, but just in case
-        await channel.send({ embeds: [embed], allowedMentions: { parse: [] } });
+        // Like the welcome, a real mention in the content so the embed's mention shows their name, but silent. They're
+        // the only one it can mention, and in a channel they can't see (as a log channel usually is) it doesn't reach them.
+        await channel.send({
+            content: `<@${discordId}>`,
+            embeds: [embed],
+            allowedMentions: { users: [discordId] },
+            flags: MessageFlags.SuppressNotifications
+        });
     }
     catch (err) {
         console.error(`Couldn't post the verification log for ${discordId}:`, err);
