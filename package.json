@@ -15,6 +15,8 @@
         "start": "node --env-file .env dist/index.js",
         "register": "node --env-file .env dist/register.js",
         "register:dev": "tsx --env-file .env src/register.ts",
+        "panel": "node --env-file .env dist/panel.js",
+        "panel:dev": "tsx --env-file .env src/panel.ts",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {

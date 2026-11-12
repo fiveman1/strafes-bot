@@ -2,6 +2,7 @@ import { Client, Events, GatewayIntentBits, MessageFlags } from "discord.js";
 import { postVerificationLog, postWelcome } from "./announce.js";
 import { getRobloxHeadshotUrl, getRobloxUsername, LinkEvent, StrafesApi, StrafesApiError } from "./api.js";
 import { commands } from "./commands/index.js";
+import { runVerify, VERIFY_BUTTON_ID } from "./commands/verify.js";
 import { config } from "./config.js";
 import { takePendingLink } from "./pending.js";
 import { syncLinkedMember } from "./roles.js";
@@ -19,19 +20,29 @@ client.once(Events.ClientReady, (ready) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) {
-        return;
+    let name: string;
+    let run: () => Promise<void>;
+    if (interaction.isChatInputCommand()) {
+        const command = commandsByName.get(interaction.commandName);
+        if (!command) {
+            return;
+        }
+        name = `/${interaction.commandName}`;
+        run = () => command.execute(interaction, api);
     }
-    const command = commandsByName.get(interaction.commandName);
-    if (!command) {
+    else if (interaction.isButton() && interaction.customId === VERIFY_BUTTON_ID) {
+        name = "The verify button";
+        run = () => runVerify(interaction, api);
+    }
+    else {
         return;
     }
 
     try {
-        await command.execute(interaction, api);
+        await run();
     }
     catch (err) {
-        console.error(`/${interaction.commandName} failed:`, err);
+        console.error(`${name} failed:`, err);
         const message = err instanceof StrafesApiError && err.status === 429
             ? "Too many requests right now, try again in a minute."
             : "Something went wrong, try again in a bit.";

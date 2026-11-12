@@ -10,6 +10,10 @@ A Discord bot for https://strafes.fiveman1.net/ related things.
 | `/unlink` | Unlinks your Roblox account |
 | `/whois [user]` | Shows which Roblox account someone has linked |
 
+For a verify channel people can't type in (which also stops slash commands there), `yarn panel <channel id>` posts an
+embed with a **Verify** button that does the same as `/verify`. It only needs posting once: the button keeps working
+across restarts. The bot needs **View Channel**, **Send Messages** and **Embed Links** in that channel to post it.
+
 Linking goes through the site's public API ([docs](https://strafes.fiveman1.net/public-api/docs)):
 
 1. `/verify` creates a link request and replies with its link, ephemerally.
