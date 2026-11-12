@@ -1,0 +1,28 @@
+{
+    "name": "strafes-bot",
+    "version": "1.0.0",
+    "private": true,
+    "description": "A Discord bot for strafes.fiveman1.net",
+    "type": "module",
+    "license": "MIT",
+    "author": "fiveman1",
+    "engines": {
+        "node": ">=22"
+    },
+    "scripts": {
+        "dev": "tsx watch --clear-screen=false --env-file .env src/index.ts",
+        "build": "rm -rf dist && tsc",
+        "start": "node --env-file .env dist/index.js",
+        "register": "node --env-file .env dist/register.js",
+        "register:dev": "tsx --env-file .env src/register.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "discord.js": "^14.27.0"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.4",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3"
+    }
+}
