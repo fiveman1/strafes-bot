@@ -136,5 +136,5 @@ export function robloxProfileUrl(robloxId: number) {
 }
 
 export function strafesUserUrl(robloxId: number) {
-    return `https://strafes.fiveman1.net/users/${robloxId}`;
+    return `https://strafes.fiveman1.net/users/${robloxId}?game=999&style=999`;
 }
