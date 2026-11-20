@@ -114,9 +114,6 @@ export function wrMessage(wr: WR, previous: PreviousWR | undefined): MessageCrea
         .setColor(0x80ff80)
         .setFooter({ text: "World Record" });
 
-    if (wr.has_bot) {
-        embed.addFields({ name: "Replay", value: `[Watch replay](${replayUrl(wr)})` });
-    }
     embed.addFields({
         name: "Info",
         value: [
