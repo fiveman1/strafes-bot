@@ -7,7 +7,7 @@ import { config } from "./config.js";
 
 const COLOR = 0xee4b93;
 
-async function sendableChannel(client: Client, channelId: string | undefined) {
+export async function sendableChannel(client: Client, channelId: string | undefined) {
     if (!channelId) {
         return undefined;
     }

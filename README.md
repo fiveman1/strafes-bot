@@ -38,6 +38,15 @@ Optionally, the bot also posts:
 - A log entry in `LOG_CHANNEL_ID` for every completed link, and when `/verify` gives the role to someone already
   linked: both accounts, the account it replaced, and whether the role was given.
 
+## Globals
+
+With any of the globals channels set (`GLOBALS_CHANNEL_ID` for every WR, and `BHOP_AUTO_`, `BHOP_STYLES_`,
+`SURF_AUTO_`, `SURF_STYLES_GLOBALS_CHANNEL_ID`), it announces new bhop and surf WRs.
+
+What it's seen and posted is kept in `data/strafes-bot.db` (SQLite), so restarts don't post anything twice, and WRs
+set while it was down still get posted if they're recent enough. The first time it runs, it takes what's on the list
+as already announced. The bot needs **View Channel**, **Send Messages** and **Embed Links** in those channels.
+
 ## Setup
 
 1. Make an application at https://discord.com/developers/applications, and invite the bot with the `bot` and

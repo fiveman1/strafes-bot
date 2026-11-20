@@ -3,7 +3,9 @@ import { postVerificationLog, postWelcome } from "./announce.js";
 import { getRobloxHeadshotUrl, getRobloxUsername, LinkEvent, StrafesApi, StrafesApiError } from "./api.js";
 import { commands } from "./commands/index.js";
 import { runVerify, VERIFY_BUTTON_ID } from "./commands/verify.js";
-import { config } from "./config.js";
+import { config, globalsEnabled } from "./config.js";
+import { Globals } from "./globals/index.js";
+import { GlobalsStore } from "./globals/store.js";
 import { takePendingLink } from "./pending.js";
 import { syncLinkedMember } from "./roles.js";
 import { startWebhookServer } from "./webhook.js";
@@ -13,10 +15,22 @@ const commandsByName = new Map(commands.map((command) => [command.data.name, com
 
 // Guilds is all it needs: slash commands come without any intents, and fetching one member doesn't need the
 // privileged members intent
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds],
+    // Publishing a message in an announcement channel is limited to 10 an hour, so past that, fail instead of waiting
+    rest: { rejectOnRateLimit: (limit) => limit.route.endsWith("/crosspost") }
+});
+
+const globalsStore = globalsEnabled ? new GlobalsStore("data/strafes-bot.db") : undefined;
+let globals: Globals | undefined;
 
 client.once(Events.ClientReady, (ready) => {
     console.log(`Logged in as ${ready.user.tag}, in ${ready.guilds.cache.size} server(s)`);
+    if (globalsStore) {
+        globals = new Globals(ready, api, globalsStore, config.strafesNetApiKey!, config.globalsChannels);
+        globals.start();
+        console.log("Announcing new WRs");
+    }
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -121,6 +135,8 @@ process.on("unhandledRejection", (reason) => {
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
     process.on(signal, async () => {
+        globals?.stop();
+        globalsStore?.close();
         await client.destroy();
         process.exit(0);
     });

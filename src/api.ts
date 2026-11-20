@@ -31,6 +31,44 @@ export interface LinkEvent {
     data: LinkRequest
 }
 
+/** One map's WR, from the site's WR list */
+export interface WR {
+    game_id: number
+    style_id: number
+    /** Milliseconds */
+    time: number
+    /** When it was set */
+    date: string
+    /** The same player beating their own time keeps the ID, so a WR is its ID and time together */
+    id: string
+    /** 0 is the main course, the rest are bonuses */
+    course: number
+    has_bot: boolean
+    user: {
+        id: number
+        username: string
+        thumbnail: string | null
+        country: string | null
+        role: number | null
+    }
+    map: {
+        id: number
+        display_name: string
+        creator: string | null
+        released_on: string | null
+        thumbnail: string | null
+        game_id: number | null
+        courses: number | null
+        /** 0 is no tier */
+        tier: number | null
+    }
+}
+
+export interface WRPage {
+    data: WR[]
+    pagination: { page: number, pageSize: number, totalItems: number, totalPages: number }
+}
+
 export class StrafesApiError extends Error {
     readonly status: number | undefined;
     readonly code: string | undefined;
@@ -69,6 +107,15 @@ export class StrafesApi {
     /** null if this key didn't make a request with that ID (or it's over 30 days old) */
     async getLinkRequest(id: string) {
         return await this.request<LinkRequest>("GET", `/link-requests/${id}`, undefined, true);
+    }
+
+    /** Every game and style's current WRs (on every course, without one), most recently set first, 100 a page */
+    async getWRs(page: number, course?: number) {
+        const params = new URLSearchParams({ page: String(page) });
+        if (course !== undefined) {
+            params.set("course", String(course));
+        }
+        return (await this.request<WRPage>("GET", `/wrs?${params}`))!;
     }
 
     protected async request<T>(method: string, path: string, body?: object, nullOn404?: boolean): Promise<T | null> {
@@ -135,6 +182,9 @@ export function robloxProfileUrl(robloxId: number) {
     return `https://www.roblox.com/users/${robloxId}/profile`;
 }
 
-export function strafesUserUrl(robloxId: number) {
-    return `https://strafes.fiveman1.net/users/${robloxId}?game=999&style=999`;
+export const SITE_URL = "https://strafes.fiveman1.net";
+
+/** Without a game and style, it's all of them */
+export function strafesUserUrl(robloxId: number, game = 999, style = 999) {
+    return `${SITE_URL}/users/${robloxId}?game=${game}&style=${style}`;
 }

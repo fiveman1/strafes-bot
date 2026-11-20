@@ -26,5 +26,22 @@ export const config = {
     verifiedRoleId: optional("VERIFIED_ROLE_ID"),
     setNicknames: optional("SET_NICKNAMES") === "true",
     welcomeChannelId: optional("WELCOME_CHANNEL_ID"),
-    logChannelId: optional("LOG_CHANNEL_ID")
+    logChannelId: optional("LOG_CHANNEL_ID"),
+
+    globalsChannels: {
+        all: optional("GLOBALS_CHANNEL_ID"),
+        bhopAuto: optional("BHOP_AUTO_GLOBALS_CHANNEL_ID"),
+        bhopStyles: optional("BHOP_STYLES_GLOBALS_CHANNEL_ID"),
+        surfAuto: optional("SURF_AUTO_GLOBALS_CHANNEL_ID"),
+        surfStyles: optional("SURF_STYLES_GLOBALS_CHANNEL_ID")
+    },
+    /** Only needed for globals */
+    strafesNetApiKey: optional("STRAFES_NET_API_KEY")
 };
+
+/** Globals are on when any of their channels is set */
+export const globalsEnabled = Object.values(config.globalsChannels).some((id) => id !== undefined);
+if (globalsEnabled && !config.strafesNetApiKey) {
+    console.error("Missing STRAFES_NET_API_KEY, which globals need (see .env.example)");
+    process.exit(1);
+}
